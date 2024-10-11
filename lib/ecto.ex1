@@ -1,0 +1,102 @@
+defmodule Ecto do
+
+  defmacro register_procedure(name, param, content) do
+
+    quote do
+
+      def unquote(:"c_#{name}")() do
+        unquote(content)
+      end
+
+      def unquote(:"p_#{name}")() do
+        unquote(param)
+      end
+
+      def unquote(:"#{name}")(param) do
+        sproc_content = unquote(:"c_#{name}")()
+        proc_params_format = unquote(:"p_#{name}")()
+
+        IO.inspect proc_params_format
+
+        #IO.warn("hello ha")
+
+        IO.inspect("EXEC " <> sproc_content)
+        conn_string = ~c"DSN=BHP_eCard;UID=sa;PWD=P@ssw0rd1"
+        #conn_string = ~c"DSN=BHP_CashCard;UID=sa1;PWD=Testing123."
+
+        params = [{{:sql_varchar, 20}, [10]}]
+
+        {:ok, conn} = :odbc.connect(conn_string, [binary_strings: :off])
+        :odbc.sql_query(conn, ~c"use [UA-CMS]")
+        result = :odbc.sql_query(conn, to_charlist("select top 1 cast(FirstName as varchar) FirstName from CMS_Contact"))
+
+        IO.inspect result
+
+        sql_result_to_map(result)
+
+      end
+
+      def sql_result_to_map({:selected, columns, rows}) do
+        columns = Enum.map(columns, fn(column) -> to_string(column) end)
+        #rows = Enum.map(rows, fn(row) -> Unidecode.decode(row) end)
+
+        #{ayam} = List.first(rows)
+        #IO.inspect(ayam)
+        #IO.inspect(byte_size(ayam))
+        #IO.inspect Unidecode.decode(ayam)
+
+        Enum.map rows, fn(row) ->
+          Enum.zip(columns, Tuple.to_list(row) |> Enum.map(fn(field) -> to_string(field) end)) |> Map.new
+        end
+      end
+
+
+      def unquote(:"#{name}2")(param) do
+        sproc_content = unquote(:"c_#{name}")()
+        proc_params_format = unquote(:"p_#{name}")()
+
+        IO.inspect proc_params_format
+
+        #IO.warn("hello ha")
+
+        IO.inspect("EXEC " <> sproc_content)
+        conn_string = ~c"DSN=BHP_eCard;UID=sa;PWD=P@ssw0rd1"
+        #conn_string = ~c"DSN=BHP_CashCard;UID=sa1;PWD=Testing123."
+
+        params = [{{:sql_varchar, 20}, [10]}]
+
+        {:ok, conn} = :odbc.connect(conn_string, [binary_strings: :off])
+        :odbc.sql_query(conn, ~c"use [UA-CMS]")
+        result = :odbc.sql_query(conn, to_charlist("select top 1 cast(FirstName as varchar) FirstName from CMS_Contact"))
+
+        IO.inspect result
+
+        sql_result_to_map(result)
+
+      end
+
+
+      defmacro unquote(:"#{name}3")(param2) do
+
+        proc_params_format = unquote(:"p_#{name}")()
+
+        IO.inspect Map.keys(param2)
+
+        case unquote(:"p_#{name}")() |> Map.keys |> Enum.all?(&(Map.has_key?(%{"@age1" => "ikan"}, &1))) do
+        #case unquote(:"p_#{name}")() |> Map.keys |> Enum.all?(&(Map.has_key?(param2, &1))) do
+          true -> ""
+          false -> IO.warn "param is KO"
+        end
+      end
+
+      # def check_param(param_val) do
+
+      #   IO.inspect(unquote(param_val))
+      #   IO.inspect(param_val)
+
+      # end
+
+
+    end
+  end
+end
