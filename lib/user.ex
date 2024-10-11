@@ -4,7 +4,7 @@ defmodule TheProgram do
 
   def the_user() do
 
-    Repo.cms_GetUser(%{"ikan2" => "ayam"})
+    Repo.cms_GetUser(%{"@age" => 10})
 
   end
 
