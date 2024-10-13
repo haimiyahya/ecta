@@ -2,7 +2,7 @@ defmodule EctaTest do
   use ExUnit.Case
   doctest Ecta
 
-  test "greets the world" do
-    assert Ecta.hello() == :world
+  test "test function TheProgram" do
+    TheProgram.the_user()
   end
 end
